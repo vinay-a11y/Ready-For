@@ -295,3 +295,11 @@ def orders_page(
             "user": current_user,
         },
     )
+@router.get("/terms-and-conditions", response_class=HTMLResponse)
+def terms_and_conditions_page(request: Request):
+    return templates.TemplateResponse(
+        "termscondition.html",
+        {
+            "request": request
+        }
+    )

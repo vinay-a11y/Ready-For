@@ -296,6 +296,7 @@ def calculate_priority(order_count: int, weight: int):
 
 def calculate_prep_time(weight: int):
     return max(int(weight / 100), 5)
+
 @router.get("/kitchen-prep", response_model=List[KitchenPrepItem])
 def get_kitchen_prep(
     status: str = Query("confirmed,inprocess"),

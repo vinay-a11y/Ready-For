@@ -153,9 +153,13 @@
       }
     }
 
-    const categories = [
-      ...new Set(products.map((p) => p.category).filter((c): c is string => typeof c === "string")),
-    ].sort()
+   const categories = [
+  ...new Set(
+    products
+      .map((p) => p.category)
+      .filter((c): c is string => typeof c === "string" && c.trim() !== "")
+  ),
+].sort()
 
     const stats = {
       totalProducts: products.length,

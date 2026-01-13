@@ -2520,10 +2520,10 @@ body.modal-open {
 .text-center {
   text-align: center;
 }
-
+/* 
 .hidden {
   display: none;
-}
+} */
 
 .visible {
   display: block;

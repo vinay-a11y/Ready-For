@@ -224,25 +224,55 @@ export function AddProductModal({ isOpen, onClose, onSuccess }: AddProductModalP
                       const file = e.target.files?.[0]
                       if (!file) return
 
+                      // Optional: basic validation
+                      if (!file.type.startsWith("image/")) {
+                        toast({
+                          title: "Invalid file",
+                          description: "Please upload an image file",
+                          variant: "destructive",
+                        })
+                        return
+                      }
+
                       const formDataObj = new FormData()
                       formDataObj.append("file", file)
 
                       try {
-                        const res = await fetch("${process.env.NEXT_PUBLIC_BACKEND_URL}/upload-image/", {
-                          method: "POST",
-                          body: formDataObj,
-                        })
+                        const res = await fetch(
+                          `${process.env.NEXT_PUBLIC_BACKEND_URL}/upload-image/`,
+                          {
+                            method: "POST",
+                            body: formDataObj,
+                          }
+                        )
+
+                        if (!res.ok) {
+                          throw new Error("Image upload failed")
+                        }
 
                         const data = await res.json()
+
                         if (data.image_url) {
-                          setFormData({ ...formData, imagesrc: data.image_url })
-                        } else {
-                          console.error("Upload error:", data)
+                          setFormData((prev) => ({
+                            ...prev,
+                            imagesrc: data.image_url,
+                          }))
+
+                          toast({
+                            title: "Image uploaded",
+                            description: "Image uploaded successfully",
+                          })
                         }
                       } catch (err) {
-                        console.error("Error uploading file:", err)
+                        console.error("Upload error:", err)
+                        toast({
+                          title: "Upload failed",
+                          description: "Could not upload image",
+                          variant: "destructive",
+                        })
                       }
                     }}
+
                     className="bg-white/90 backdrop-blur-sm border-slate-300"
                   />
                 </div>

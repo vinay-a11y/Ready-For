@@ -13,26 +13,26 @@ templates = Jinja2Templates(directory="templates")
 # -------------------------------------------------
 # CART PAGE (PROTECTED)
 # -------------------------------------------------
-# @router.get("/cart", response_class=HTMLResponse)
-# def cart_page(
-#     request: Request,
-# ):
-#     return templates.TemplateResponse(
-#         "cart.html",
-#         {"request": request},
-#     )
+@router.get("/cart", response_class=HTMLResponse)
+def cart_page(
+    request: Request,
+):
+    return templates.TemplateResponse(
+        "cart.html",
+        {"request": request},
+    )
 
-# # -------------------------------------------------
-# # ORDERS PAGE (PROTECTED)
-# # -------------------------------------------------
-# @router.get("/orders.html", response_class=HTMLResponse)
-# def orders_page(
-#     request: Request,
-# ):
-#     return templates.TemplateResponse(
-#         "orders.html",
-#         {"request": request},
-#     )
+# -------------------------------------------------
+# ORDERS PAGE (PROTECTED)
+# -------------------------------------------------
+@router.get("/orders.html", response_class=HTMLResponse)
+def orders_page(
+    request: Request,
+):
+    return templates.TemplateResponse(
+        "orders.html",
+        {"request": request},
+    )
 
 # -------------------------------------------------
 # CART SYNC API (OPTIONAL / FUTURE USE)

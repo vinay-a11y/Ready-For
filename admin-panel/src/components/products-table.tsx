@@ -58,7 +58,7 @@ export function ProductsTable({
 
     try {
 const res = await adminFetch(
-  `/products/${id}`,
+  `/admin/products/${id}`,
   { method: "DELETE" }
 )
       if (!res.ok) throw new Error("Delete failed")

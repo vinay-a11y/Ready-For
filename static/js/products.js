@@ -130,34 +130,44 @@ function initializeWebsite() {
   setupClickOutsideHandlers()
   syncCartCounts()
 }
+let scrollHandlerAttached = false
 
 // Setup scroll handler for mobile navbar hide/show
 function setupScrollHandler() {
-  if (window.innerWidth <= 768) {
+  if (window.innerWidth <= 768 && !scrollHandlerAttached) {
+    scrollHandlerAttached = true
     let ticking = false
 
     function updateNavbar() {
-      const header = document.getElementById("header")
-      const currentScrollY = window.scrollY
+  const header = document.getElementById("header")
+  if (!header) return   // ✅ ADD THIS
 
-      if (currentScrollY > window.lastScrollY && currentScrollY > 100) {
-        header.classList.add("hidden")
-      } else {
-        header.classList.remove("hidden")
-      }
+  const currentScrollY = window.scrollY
 
-      window.lastScrollY = currentScrollY
-      ticking = false
+  if (currentScrollY > window.lastScrollY && currentScrollY > 100) {
+    header.classList.add("hidden")
+  } else {
+    header.classList.remove("hidden")
+  }
+
+  window.lastScrollY = currentScrollY
+}
+
+
+    window.addEventListener(
+  "scroll",
+  () => {
+    if (!ticking) {
+      requestAnimationFrame(updateNavbar)
+      ticking = true
     }
+  },
+  { passive: true } // ✅ THIS LINE STOPS SCROLL JUMPS
+)
 
-    window.addEventListener("scroll", () => {
-      if (!ticking) {
-        requestAnimationFrame(updateNavbar)
-        ticking = true
-      }
-    })
   }
 }
+
 
 // Sync cart counts between mobile and desktop
 function syncCartCounts() {
@@ -193,13 +203,13 @@ function checkAuthState() {
         dropdownUserName.textContent = `${user.first_name} ${user.last_name || ""}`
       }
       if (dropdownUserEmail) {
-        dropdownUserEmail.textContent = user.email || "user@example.com"
+        dropdownUserEmail.textContent = user.phone
       }
       if (mobileDropdownUserName) {
         mobileDropdownUserName.textContent = `${user.first_name} ${user.last_name || ""}`
       }
       if (mobileDropdownUserEmail) {
-        mobileDropdownUserEmail.textContent = user.email || "user@example.com"
+        mobileDropdownUserEmail.textContent = user.phone || "user@example.com"
       }
     } else {
       if (authText) {
@@ -1175,7 +1185,9 @@ function changePage(delta) {
 
     const productsSection = document.querySelector(".products-section")
     if (productsSection) {
-      productsSection.scrollIntoView({ behavior: "smooth" })
+if (window.innerWidth > 768) {
+  productsSection.scrollIntoView({ behavior: "smooth", block: "start" })
+}
     }
   }
 }
@@ -1988,20 +2000,16 @@ function setupClickOutsideHandlers() {
 }
 
 // Handle window resize for responsive behavior
+let resizeTimeout
 window.addEventListener("resize", () => {
-  renderProducts(window.filteredProducts)
-  updateProductCount()
-  syncCartCounts()
-
-  if (window.innerWidth <= 768) {
-    setupScrollHandler()
-  } else {
-    const header = document.getElementById("header")
-    if (header) {
-      header.classList.remove("hidden")
+  clearTimeout(resizeTimeout)
+  resizeTimeout = setTimeout(() => {
+    if (window.innerWidth > 768) {
+      renderProducts(window.filteredProducts)
     }
-  }
+  }, 300)
 })
+
 
 // Utility function for debouncing
 function debounce(func, wait) {

@@ -156,35 +156,15 @@ def get_product_by_id(product_id: int, db: Session = Depends(get_db)):
         "shelf_life_days": p.shelf_life_days,
         "lead_time_days": p.lead_time_days,
     }
-
-@router.get("/api/products")
-def get_all_products(db: Session = Depends(get_db)):
-    products = db.query(Product).filter(Product.is_enabled == True).all()
-    product_list = []
-
-    for p in products:
-        variants = []
-
-        if p.price_01:
-            variants.append({"packing": p.packing_01 or "250gm", "price": p.price_01})
-        if p.price_02:
-            variants.append({"packing": p.packing_02 or "500gm", "price": p.price_02})
-        if p.price_03:
-            variants.append({"packing": p.packing_03 or "1kg", "price": p.price_03})
-        if p.price_04:
-            variants.append({"packing": p.packing_04 or "2kg", "price": p.price_04})
-
-        product_list.append({
-            "id": p.id,
-            "item_name": p.item_name,
-            "category": p.category,
-            "description": p.description,
-            "image_url": p.imagesrc,
-            "variants": variants,
-        })
-
-    return product_list
-
+    # GokhaleBandhu@Pune@12345
+#     {
+#   "Registered Name": "Razorpay Payments Private Limited",
+#   "CIN": "U62099KA2024PTC188982",
+#   "PAN": "AANCR6717K",
+#   "TAN": "BLRR30567F",
+#   "GST": "29AANCR6717K1ZN"
+# }
+# ----------------------------------------------------
 # @router.post("/api/products/add")
 # def add_product(
 #     product: ProductsCreate,
