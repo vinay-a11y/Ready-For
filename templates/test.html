@@ -1,14 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Products</title>
-  <link rel="stylesheet" href="/static/css/test.css" />
-</head>
-<body>
-  <h1>All Products</h1>
-  <div id="product-container"></div>
+  /* ---------------- LOGIN ---------------- */
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    hideMessages();
 
-  <script src="/static/js/test.js" type="module"></script>
-</body>
-</html>
+    try {
+      const formData = new FormData(loginForm);
+
+      const response = await fetch("/login", {
+        method: "POST",
+        body: formData,
+        credentials: "include", // ⭐ REQUIRED FOR COOKIES
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.detail || "Invalid credentials");
+      }
+
+      // Save safe user info (NOT TOKEN)
+      localStorage.setItem("user", JSON.stringify(result.user));
+
+      successText.textContent = result.message || "Login successful!";
+      successMessage.style.display = "block";
+
+      setTimeout(() => {
+       
+          window.location.href = "/";
+        
+      }, 800);
+
+    } catch (err) {
+      errorText.textContent = err.message || "Login failed";
+      errorMessage.style.display = "block";
+    }
+  });

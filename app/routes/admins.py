@@ -275,28 +275,63 @@ def product_categories(db: Session = Depends(get_db)):
         for category, count in rows
         if category
     ]
-def convert_to_grams(variant: str) -> int:
-    v = variant.lower()
+
+# ------------------------------------------------------
+# 🔧 VARIANT PARSER (WEIGHT + PCS)
+# ------------------------------------------------------
+def convert_to_grams(variant: str):
+    """
+    Returns:
+    (weight_in_grams, pieces)
+    """
+    if not variant:
+        return 0, 0
+
+    v = variant.lower().replace(" ", "")
     import re
+
     match = re.search(r"(\d+(?:\.\d+)?)", v)
     if not match:
-        return 0
+        return 0, 0
 
     value = float(match.group(1))
-    if "kg" in v:
-        return int(value * 1000)
-    return int(value)
 
-def calculate_priority(order_count: int, weight: int):
-    if order_count >= 3 or weight >= 2000:
+    # WEIGHT
+    if "kg" in v:
+        return int(value * 1000), 0
+    if "gm" in v or "g" in v:
+        return int(value), 0
+
+    # PIECES
+    if "pcs" in v or "ps" in v or "pc" in v:
+        return 0, int(value)
+
+    return 0, 0
+
+
+# ------------------------------------------------------
+# 🔥 PRIORITY LOGIC
+# ------------------------------------------------------
+def calculate_priority(order_count: int, weight: int, pieces: int):
+    if order_count >= 3 or weight >= 2000 or pieces >= 10:
         return "high"
-    if order_count >= 2 or weight >= 1000:
+    if order_count >= 2 or weight >= 1000 or pieces >= 5:
         return "medium"
     return "low"
 
-def calculate_prep_time(weight: int):
-    return max(int(weight / 100), 5)
 
+# ------------------------------------------------------
+# ⏱️ PREP TIME LOGIC
+# ------------------------------------------------------
+def calculate_prep_time(weight: int, pieces: int):
+    # weight = bulk effort
+    # pieces = manual effort
+    return max(int(weight / 100) + pieces * 2, 5)
+
+
+# ------------------------------------------------------
+# 🍳 KITCHEN PREP API
+# ------------------------------------------------------
 @router.get("/kitchen-prep", response_model=List[KitchenPrepItem])
 def get_kitchen_prep(
     status: str = Query("confirmed,inprocess"),
@@ -332,21 +367,33 @@ def get_kitchen_prep(
                     "name": name,
                     "totalQuantity": 0,
                     "totalWeight": 0,
+                    "totalPieces": 0,
                     "orders": set(),
-                    "variants": defaultdict(lambda: {"quantity": 0, "weight": 0}),
+                    "variants": defaultdict(
+                        lambda: {
+                            "quantity": 0,
+                            "weight": 0,
+                            "pieces": 0,
+                        }
+                    ),
                 }
 
             data = item_map[name]
             data["totalQuantity"] += quantity
             data["orders"].add(order.id)
 
-            grams = convert_to_grams(variant)
-            total_weight = grams * quantity
+            weight, pieces = convert_to_grams(variant)
+
+            total_weight = weight * quantity
+            total_pieces = pieces * quantity
+
             data["totalWeight"] += total_weight
+            data["totalPieces"] += total_pieces
 
             v = data["variants"][variant]
             v["quantity"] += quantity
             v["weight"] += total_weight
+            v["pieces"] += total_pieces
 
     result = []
 
@@ -356,19 +403,26 @@ def get_kitchen_prep(
                 name=item["name"],
                 totalQuantity=item["totalQuantity"],
                 totalWeight=item["totalWeight"],
+                totalPieces=item["totalPieces"],
                 orderCount=len(item["orders"]),
                 variants=[
                     KitchenVariant(
                         variant=k,
                         quantity=v["quantity"],
                         weight=v["weight"],
+                        pieces=v["pieces"],
                     )
                     for k, v in item["variants"].items()
                 ],
                 priority=calculate_priority(
-                    len(item["orders"]), item["totalWeight"]
+                    len(item["orders"]),
+                    item["totalWeight"],
+                    item["totalPieces"],
                 ),
-                estimatedPrepTime=calculate_prep_time(item["totalWeight"]),
+                estimatedPrepTime=calculate_prep_time(
+                    item["totalWeight"],
+                    item["totalPieces"],
+                ),
             )
         )
 

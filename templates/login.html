@@ -1,110 +1,324 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SnackMart</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/login.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+  <link rel="stylesheet" href="/static/css/login.css" />
 </head>
-
 <body>
-    <a href="/" class="back-home">
-        <i class="fas fa-arrow-left"></i>
-        Back to Home
-    </a>
 
-    <div class="login-container">
-        <div class="login-left">
-            <!-- <div class="login-icon">🍪</div> -->
-            <a  class="logo">
-                <img src="/static/images/logo.png" alt="Gokhale Bandu Logo">
-            </a>
-            <h1>Welcome to Gokhale Bandhu!</h1>
-            <!-- <p>Sign in to your SnackMart account and continue your delicious journey with our premium snacks and sweets.</p> -->
+  <div class="auth-container">
+    <!-- LEFT BRANDING WITH LOGO -->
+    <div class="auth-branding">
+      <div class="brand-content">
+        <!-- Moved logo to the welcome/branding section -->
+        <div class="logo-container">
+          <img src="/static/images/logo.png" alt="Logo" class="logo logo-branding">
         </div>
-
-        <div class="login-right">
-            <div class="login-header">
-                <a href="/" class="logo">
-                    <img src="/static/images/logo.png" alt="Gokhale Bandu Logo">
-                </a>
-                <h2 id="hh">Sign In</h2>
-                <h2 id="h3" style="display: none;">Forgot-Password</h2>
-                <!-- <p>Enter your credentials to access your account</p> -->
-            </div>
-
-            <div class="error-message" id="errorMessage">
-                <i class="fas fa-exclamation-circle"></i>
-                <span id="errorText"></span>
-            </div>
-
-            <div class="success-message" id="successMessage">
-                <i class="fas fa-check-circle"></i>
-                <span id="successText"></span>
-            </div>
-
-            <form class="login-form" id="loginForm">
-                <div class="form-group">
-                    <label for="phone">Phone Number</label>
-                    <input type="tel" id="mobile_number" name="mobile_number" placeholder="Enter your 10-digit phone number" pattern="[0-9]{10}" maxlength="10" required>
-                    <i class="fas fa-phone"></i>
-                    <div class="validation-message" id="mobile_numberValidation"></div>
-                </div>
-
-                <div class="form-group" id="passwordGroup">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                    <i class="fas fa-eye password-toggle" onclick="togglePassword('password')"></i>
-                    <div class="validation-message" id="passwordValidation"></div>
-                </div>
-
-                <div class="form-options">
-                    <label class="remember-me">
-                        <input type="checkbox" id="rememberMe" name="rememberMe">
-                        <span>Remember me</span>
-                    </label>
-                    <span class="forgot-password">Forgot Password?</span>
-                </div>
-
-                <div class="form-group" id="otpInputGroup" style="display: none;">
-                    <label for="otp">Enter OTP</label>
-                    <input type="text" id="otpInput" maxlength="6" placeholder="6-digit OTP" />
-                    <div class="validation-message" id="otpValidation"></div>
-                </div>
-
-                <button type="submit" id="signInBtn" class="login-btn">
-                    <span>Sign In</span>
-                </button>
-                <button type="button" class="login-btn" id="sendOtpButton" style="display: none;">
-                    <span>Send OTP</span>
-                </button>
-            </form>
-
-            <div class="form-group" id="resetPasswordGroup" style="display: none;">
-                <label for="newPassword">New Password</label>
-                <input type="password" id="newPassword" placeholder="Enter new password">
-                <i class="fas fa-eye password-toggle" onclick="togglePassword('newPassword')"></i>
-
-                <label for="confirmNewPassword">Confirm Password</label>
-                <input type="password" id="confirmNewPassword" placeholder="Confirm password">
-                <i class="fas fa-eye password-toggle" onclick="togglePassword('confirmNewPassword')"></i>
-
-                <div class="validation-message" id="resetErrorText" style="color: red;"></div>
-
-                <button type="button" class="login-btn" id="resetBtn" style="margin-top: 10px;">
-                    Reset Password
-                </button>
-            </div>
-
-            <div class="signup-link">
-                Don't have an account? <a href="/register">Sign up here</a>
-            </div>
-        </div>
+        <h1>Welcome</h1>
+        <p>Sign in to your account to continue</p>
+      </div>
     </div>
 
-    <script src="/static/js/login.js"></script>
-</body>
+    <!-- RIGHT FORM AREA -->
+    <div class="auth-form-wrapper">
+      <div class="form-card">
+        <!-- ================= LOGIN FORM ================= -->
+        <form id="loginForm" class="auth-form active-form">
+          <div class="form-header">
+            <h2>Login</h2>
+            <p>Enter your credentials to access your account</p>
+          </div>
 
+          <div class="form-group">
+            <label for="mobile">Phone Number</label>
+            <div class="input-wrapper">
+              <span class="input-icon">📱</span>
+              <input
+                type="tel"
+                id="mobile"
+                name="mobile_number"
+                placeholder="Enter 10-digit phone number"
+                pattern="[0-9]{10}"
+                required
+              />
+            </div>
+            <span class="error-message" id="mobileError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper password-wrapper">
+              <span class="input-icon">🔒</span>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+              />
+              <button type="button" class="toggle-password" data-target="password">👁️</button>
+            </div>
+            <span class="error-message" id="passwordError"></span>
+          </div>
+
+          <!-- Moved forgot password link above button, right aligned -->
+          <div class="forgot-password-link">
+            <button type="button" class="btn-link-right" id="forgotPasswordBtn">
+              Forgot Password?
+            </button>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-text">Login</span>
+            <span class="btn-loader hidden">
+              <span class="progress-bar"></span>
+            </span>
+          </button>
+  <!-- Added Google Sign In button -->
+          <button type="button" class="btn-google">
+            <span class="google-icon">🔵</span>
+            <span class="btn-text">Sign in with Google</span>
+          </button>
+          <div class="form-divider">
+            <span>Don't have an account?</span>
+          </div>
+
+          <button type="button" class="btn-secondary" id="switchToRegister">
+            Create New Account
+          </button>
+
+        
+
+          <!-- Moved change password button to bottom of login form -->
+          <button type="button" class="btn-secondary" id="changePasswordBtn">
+            Change Password
+          </button>
+        </form>
+
+        <!-- ============ CHANGE PASSWORD FORM ============ -->
+        <form id="changePasswordForm" class="auth-form">
+          <div class="form-header">
+            <button type="button" class="back-btn" id="backToLoginFromChangeBtn">← Back</button>
+            <h2>Change Password</h2>
+            <p>Update your current password</p>
+          </div>
+
+          <div class="form-group">
+            <label for="changeMobile">Phone Number</label>
+            <div class="input-wrapper">
+              <span class="input-icon">📱</span>
+              <input
+                type="tel"
+                id="changeMobile"
+                name="mobile_number"
+                placeholder="Enter 10-digit phone number"
+                pattern="[0-9]{10}"
+                required
+              />
+            </div>
+            <span class="error-message" id="changeMobileError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="currentPassword">Current Password</label>
+            <div class="input-wrapper password-wrapper">
+              <span class="input-icon">🔒</span>
+              <input
+                type="password"
+                id="currentPassword"
+                name="current_password"
+                placeholder="Enter your current password"
+                required
+              />
+              <button type="button" class="toggle-password" data-target="currentPassword">👁️</button>
+            </div>
+            <span class="error-message" id="currentPasswordError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="changeNewPassword">New Password</label>
+            <div class="input-wrapper password-wrapper">
+              <span class="input-icon">🔒</span>
+              <input
+                type="password"
+                id="changeNewPassword"
+                name="new_password"
+                placeholder="Create a new password"
+                required
+              />
+              <button type="button" class="toggle-password" data-target="changeNewPassword">👁️</button>
+            </div>
+            <span class="error-message" id="changeNewPasswordError"></span>
+
+            <div class="password-strength" id="changePasswordStrength">
+              <div class="strength-bar"></div>
+              <span class="strength-text">Password strength</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="changeConfirmPassword">Confirm New Password</label>
+            <div class="input-wrapper password-wrapper">
+              <span class="input-icon">🔒</span>
+              <input
+                type="password"
+                id="changeConfirmPassword"
+                name="confirm_password"
+                placeholder="Confirm your new password"
+                required
+              />
+              <button type="button" class="toggle-password" data-target="changeConfirmPassword">👁️</button>
+            </div>
+            <span class="error-message" id="changeConfirmPasswordError"></span>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-text">Update Password</span>
+            <span class="btn-loader hidden">
+              <span class="progress-bar"></span>
+            </span>
+          </button>
+        </form>
+
+        <!-- ============ FORGOT PASSWORD – VERIFY ============ -->
+        <form id="forgotPasswordVerifyForm" class="auth-form">
+          <div class="form-header form-header-inline">
+            <!-- Made back button and heading inline on same line -->
+            <div class="form-header-top">
+              <button type="button" class="back-btn-inline" id="backToLoginBtn">← Back</button>
+              <h2>Verify Your Identity</h2>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="resetMobile">Phone Number</label>
+            <div class="input-wrapper">
+              <span class="input-icon">📱</span>
+              <input
+                type="tel"
+                id="resetMobile"
+                name="phone"
+                placeholder="Enter 10-digit phone number"
+                pattern="[0-9]{10}"
+                required
+              />
+            </div>
+            <span class="error-message" id="resetMobileError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="securityAnswer1">Mother's First Name</label>
+            <div class="input-wrapper">
+              <span class="input-icon">❓</span>
+              <input
+                type="text"
+                id="securityAnswer1"
+                name="answer1"
+                placeholder="Enter answer"
+                required
+              />
+            </div>
+            <span class="error-message" id="answer1Error"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="securityAnswer2">Birth City</label>
+            <div class="input-wrapper">
+              <span class="input-icon">❓</span>
+              <input
+                type="text"
+                id="securityAnswer2"
+                name="answer2"
+                placeholder="Enter answer"
+                required
+              />
+            </div>
+            <span class="error-message" id="answer2Error"></span>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-text">Verify & Continue</span>
+            <span class="btn-loader hidden">
+              <span class="progress-bar"></span>
+            </span>
+          </button>
+        </form>
+
+        <!-- ============ FORGOT PASSWORD – RESET ============ -->
+        <form id="forgotPasswordResetForm" class="auth-form">
+          <div class="form-header">
+            <button type="button" class="back-btn" id="backToVerifyBtn">← Back</button>
+            <h2>Reset Password</h2>
+            <p>Create a new secure password</p>
+          </div>
+
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <div class="input-wrapper password-wrapper">
+              <span class="input-icon">🔒</span>
+              <input
+                type="password"
+                id="newPassword"
+                name="new_password"
+                placeholder="Create a strong password"
+                required
+              />
+              <button type="button" class="toggle-password" data-target="newPassword">👁️</button>
+            </div>
+            <span class="error-message" id="newPasswordError"></span>
+
+            <div class="password-strength" id="passwordStrength">
+              <div class="strength-bar"></div>
+              <span class="strength-text">Password strength</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmNewPassword">Confirm Password</label>
+            <div class="input-wrapper password-wrapper">
+              <span class="input-icon">🔒</span>
+              <input
+                type="password"
+                id="confirmNewPassword"
+                name="confirm_password"
+                placeholder="Confirm your password"
+                required
+              />
+              <button type="button" class="toggle-password" data-target="confirmNewPassword">👁️</button>
+            </div>
+            <span class="error-message" id="confirmNewPasswordError"></span>
+          </div>
+
+          <div class="password-requirements">
+            <p>Password must contain:</p>
+            <ul>
+              <li id="req-8chars">✓ At least 8 characters</li>
+              <li id="req-uppercase">✓ One uppercase letter</li>
+              <li id="req-lowercase">✓ One lowercase letter</li>
+              <li id="req-number">✓ One number</li>
+              <li id="req-special">✓ One special character (!@#$%)</li>
+            </ul>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-text">Reset Password</span>
+            <span class="btn-loader hidden">
+              <span class="progress-bar"></span>
+            </span>
+          </button>
+        </form>
+
+        <!-- SUCCESS MESSAGE -->
+        <div class="success-message hidden" id="successMessage">
+          ✅ <span id="successText"></span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/login.js"></script>
+</body>
 </html>
