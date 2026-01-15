@@ -162,7 +162,7 @@ def login(
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=False,  # Set to True in production (HTTPS)
+        secure=True,  # Set to True in production (HTTPS)
         samesite="lax",
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         path="/",
@@ -341,7 +341,7 @@ def cart_page(
         },
     )
 
-@router.get("/orders.html", response_class=HTMLResponse)
+@router.get("/orderss", response_class=HTMLResponse)
 def orders_page(
     request: Request,
     current_user = Depends(require_user_page),
