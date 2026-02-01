@@ -3,18 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products - Gokhale Bandhu</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/product.css">
+    <style>#pincodeModal {
+  display: none;
+}
+
+#pincodeModal.active {
+  display: flex;
+}
+
+</style>
+<meta property="og:site_name" content="Gokhale Bandhu">
+<meta property="og:title" content="Gokhale Bandhu – Authentic Maharashtrian Snacks">
+<meta property="og:url" content="https://www.gokhalebandhu.com">
+<meta property="og:type" content="website">
+
     <!-- Razorpay Script -->
       <!-- Favicon (small logo on browser tab) -->
   <link rel="icon" href="/static/images/logo.png" type="image/png" />
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- ================= FAVICONS ================= -->
+
+<!-- Primary favicon (MOST IMPORTANT for Google Search) -->
+<link rel="icon" href="/static/images/logo.png">
+
+<!-- PNG favicons -->
+<link rel="icon" type="image/png" sizes="32x32"
+  href="https://res.cloudinary.com/dx10coeiv/image/upload/v1768739406/favicon-32x32_ddsfrj.png">
+
+<link rel="icon" type="image/png" sizes="16x16"
+  href="https://res.cloudinary.com/dx10coeiv/image/upload/v1768739405/favicon-16x16_u7tnje.png">
+
+<!-- Apple Touch Icon -->
+<link rel="apple-touch-icon" sizes="180x180"
+  href="https://res.cloudinary.com/dx10coeiv/image/upload/v1768739403/apple-touch-icon_op1qdg.png">
+
+<!-- Android / PWA -->
+<link rel="icon" type="image/png" sizes="192x192"
+  href="https://res.cloudinary.com/dx10coeiv/image/upload/v1768739362/android-chrome-192x192_xygciy.png">
+
+<link rel="icon" type="image/png" sizes="512x512"
+  href="https://res.cloudinary.com/dx10coeiv/image/upload/v1768739401/android-chrome-512x512_rch1dq.png">
+
+<!-- ================= SITE NAME (GOOGLE) ================= -->
+
+
+<!-- ================= SEO TITLE ================= -->
+<title>Gokhale Bandhu – Authentic Maharashtrian Snacks</title>
+
 </head>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Gokhale Bandhu",
+  "alternateName": "Gokhale Bandhu Amravati",
+  "url": "https://www.gokhalebandhu.com"
+}
+</script>
 <body>
     <!-- Toast Container -->
     <div id="toastContainer" class="toast-container"></div>
+
+     <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Pincode Delivery Modal - ALWAYS VISIBLE BY DEFAULT -->
+    <div id="pincodeModal" class="pincode-modal">
+        <div class="pincode-modal-content">
+<button class="pincode-close-btn" onclick="closePincodeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="pincode-modal-header">
+                <div class="pincode-icon">
+                    <i class="fas fa-map-pin"></i>
+                </div>
+                <h2>Check Delivery Availability</h2>
+                <p>Enter your pincode to see if we deliver to your area</p>
+            </div>
+
+            <div class="pincode-modal-body">
+                <!-- Quick Select Buttons -->
+                <div class="pincode-quick-select">
+                    <h3>Popular Pune Pincodes</h3>
+                    <div class="pincode-buttons">
+                        <button class="pincode-quick-btn" onclick="selectQuickPincode('411032')">411032</button>
+                        <button class="pincode-quick-btn" onclick="selectQuickPincode('411046')">411046</button>
+                        <button class="pincode-quick-btn" onclick="selectQuickPincode('411051')">411051</button>
+                        <button class="pincode-quick-btn" onclick="selectQuickPincode('411007')">411007</button>
+                    </div>
+                </div>
+
+                <!-- Manual Input -->
+                <div class="pincode-input-section">
+                    <label for="pincodeInputField">Or enter your pincode</label>
+                    <div class="pincode-input-wrapper">
+                        <input 
+                            type="text" 
+                            id="pincodeInputField" 
+                            placeholder="Enter 6-digit pincode" 
+                            maxlength="6" 
+                            inputmode="numeric"
+                            oninput="validatePincodeInput(this.value)"
+                            onkeypress="handlePincodeKeyPress(event)"
+                        >
+                        <span id="pincodeInputStatus" class="pincode-status-indicator"></span>
+                    </div>
+                    <div id="pincodeErrorMessage" class="pincode-error-message" style="display: none;">
+                        ❌ Delivery not available for this pincode
+                    </div>
+                    <div id="pincodeSuccessMessage" class="pincode-success-message" style="display: none;">
+                        ✅ Delivery available!
+                    </div>
+                </div>
+
+                <button class="pincode-submit-btn" id="pincodeSubmitBtn" onclick="confirmPincode()" disabled>
+                    Continue
+                </button>
+
+                <p class="pincode-modal-footer">
+                    Currently available in: Pune, Mumbai, Delhi, Bangalore
+                </p>
+            </div>
+        </div>
+    </div>
 
     <!-- Header Section -->
     <header class="header" id="header">
@@ -151,7 +266,7 @@
 
                     <!-- Mobile Cart -->
                     <div class="mobile-cart-section">
-                        <div class="mobile-cart-icon" id="mobileCartIcon" onclick="toggleCart()">
+                        <div class="mobile-cart-icon" id="mobileCartIcon" onclick="window.location.href='/cart'">
                             <i class="fas fa-shopping-cart"></i>
                             <span class="mobile-cart-count" id="mobileCartCount">0</span>
                         </div>
@@ -404,6 +519,8 @@
     </footer>
 
     <script src="/static/js/products.js"></script>
+        <!-- <script src="/static/js/pincode.js"></script> -->
+
     <script>
          window.addEventListener("DOMContentLoaded", function () {
     if (localStorage.getItem("openCartOnLoad") === "true") {
@@ -411,7 +528,25 @@
       toggleCart();
     }
   });
+  
     </script>
-    
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://www.gokhalebandhu.com/#website",
+  "name": "Gokhale Bandhu",
+  "alternateName": ["Gokhale Bandhu Amravati", "Gokhale Bandhu Sweets"],
+  "url": "https://www.gokhalebandhu.com",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Gokhale Bandhu",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.gokhalebandhu.com/static/images/logo.png"
+    }
+  }
+}
+</script>
 </body>
 </html>

@@ -25,7 +25,7 @@ templates = Jinja2Templates(directory="templates")
 # JWT CONFIG
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60 * 24 * 90))
 
 # Password Hasher
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -159,14 +159,16 @@ def login(
     })
 
     response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,
-        secure=True,  # Set to True in production (HTTPS)
-        samesite="lax",
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        path="/",
-    )
+    key="access_token",
+    value=access_token,
+    httponly=True,
+    secure=True,                 # HTTPS only
+    samesite="lax",
+    max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,   # 90 days
+    expires=ACCESS_TOKEN_EXPIRE_MINUTES * 60,   # <-- IMPORTANT
+    path="/",
+)
+
 
     return response
 
@@ -341,7 +343,7 @@ def cart_page(
         },
     )
 
-@router.get("/orderss", response_class=HTMLResponse)
+@router.get("/orders.html", response_class=HTMLResponse)
 def orders_page(
     request: Request,
     current_user = Depends(require_user_page),

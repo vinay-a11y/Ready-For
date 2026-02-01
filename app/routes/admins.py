@@ -30,6 +30,16 @@ router = APIRouter(
     tags=["admin"],
     dependencies=[Depends(get_current_admin)],
 )
+ALLOWED_ORDER_STATUSES = [
+    "placed",
+    "confirmed",
+    "inprocess",
+    "dispatched",
+    "delivered",
+    "completed",
+    "cancelled",
+    "rejected",
+]
 
 # ------------------------------------------------------
 # ORDERS
@@ -38,6 +48,7 @@ router = APIRouter(
 def get_orders(db: Session = Depends(get_db)):
     return (
         db.query(Order)
+        .filter(Order.order_status.in_(ALLOWED_ORDER_STATUSES))
         .order_by(Order.created_at.desc())
         .limit(500)
         .all()
@@ -53,6 +64,12 @@ def update_order_status(
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+
+    if payload.order_status not in ALLOWED_ORDER_STATUSES:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid order status"
+        )
 
     order.order_status = payload.order_status
     db.commit()
@@ -78,18 +95,30 @@ def dashboard_summary(
     return {
         "total_revenue": float(
             db.query(func.coalesce(func.sum(Order.total_amount), 0))
-            .filter(Order.created_at >= start_date)
+            .filter(
+                Order.created_at >= start_date,
+                Order.order_status.in_(ALLOWED_ORDER_STATUSES),
+            )
             .scalar()
         ),
-        "total_orders": db.query(func.count(Order.id))
-        .filter(Order.created_at >= start_date)
-        .scalar(),
-        "total_customers": db.query(
-            func.count(func.distinct(Order.mobile_number))
-        )
-        .filter(Order.created_at >= start_date)
-        .scalar(),
+        "total_orders": (
+            db.query(func.count(Order.id))
+            .filter(
+                Order.created_at >= start_date,
+                Order.order_status.in_(ALLOWED_ORDER_STATUSES),
+            )
+            .scalar()
+        ),
+        "total_customers": (
+            db.query(func.count(func.distinct(Order.mobile_number)))
+            .filter(
+                Order.created_at >= start_date,
+                Order.order_status.in_(ALLOWED_ORDER_STATUSES),
+            )
+            .scalar()
+        ),
     }
+
 
 
 # ------------------------------------------------------
@@ -109,11 +138,13 @@ def dashboard_revenue(
     )
 
     rows = (
-        db.query(label.label("name"), func.sum(Order.total_amount))
-        .group_by("name")
-        .order_by("name")
-        .all()
-    )
+    db.query(label.label("name"), func.sum(Order.total_amount))
+    .filter(Order.order_status.in_(ALLOWED_ORDER_STATUSES))
+    .group_by("name")
+    .order_by("name")
+    .all()
+)
+
 
     return [{"name": str(r[0]), "revenue": float(r[1] or 0)} for r in rows]
 
@@ -123,7 +154,11 @@ def dashboard_revenue(
 # ------------------------------------------------------
 @router.get("/dashboard/top-products")
 def top_products(db: Session = Depends(get_db)):
-    orders = db.query(Order.items).all()
+    orders = (
+    db.query(Order.items)
+    .filter(Order.order_status.in_(ALLOWED_ORDER_STATUSES))
+    .all()
+)
     product_map = {}
 
     for (items,) in orders:

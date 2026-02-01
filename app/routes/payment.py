@@ -11,7 +11,9 @@ import os
 import hmac
 import hashlib
 import json
-
+from fastapi import Query
+from sqlalchemy import or_
+from sqlalchemy.dialects.postgresql import JSONB
 from app.database.session import get_db
 from app.models.orders import Order
 from app.models.user import User
@@ -223,13 +225,57 @@ async def razorpay_webhook(
 # --------------------------------------------------
 @router.get("/api/orders")
 async def get_orders(
+    filter: str | None = Query(default="all"),
+    status: str | None = Query(default=None),
+    search: str | None = Query(default=None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    orders = (
+    query = (
         db.query(Order)
-        .options(joinedload(Order.user))
         .filter(Order.user_id == current_user.id)
+    )
+
+    # ----------------------------
+    # STATUS FILTER
+    # ----------------------------
+    if status:
+        query = query.filter(Order.order_status == status)
+
+    # ----------------------------
+    # PRESET FILTERS
+    # ----------------------------
+    if filter == "current":
+        query = query.filter(
+            Order.order_status.notin_(
+                ["delivered", "completed", "cancelled", "rejected"]
+            )
+        )
+
+    elif filter == "delivered":
+        query = query.filter(
+            Order.order_status.in_(["delivered", "completed"])
+        )
+
+    elif filter == "cancelled":
+        query = query.filter(
+            Order.order_status.in_(["cancelled", "rejected"])
+        )
+
+    # ----------------------------
+    # SEARCH (Order ID or Item Name)
+    # ----------------------------
+    if search:
+        search_value = f"%{search.lower()}%"
+        query = query.filter(
+            or_(
+                Order.razorpay_order_id.ilike(search_value),
+                Order.items.cast(JSONB).op("::text").ilike(search_value)
+            )
+        )
+
+    orders = (
+        query
         .order_by(Order.created_at.desc())
         .all()
     )
@@ -243,13 +289,16 @@ async def get_orders(
                 "total_amount": float(o.total_amount),
                 "order_status": o.order_status,
                 "created_at": o.created_at.isoformat(),
+                "updated_at": o.updated_at.isoformat() if o.updated_at else None,
                 "items": o.items,
                 "address": o.address,
+                "payment_status": "paid" if o.order_status != "pending" else "pending",
             }
             for o in orders
         ],
         "message": "Orders fetched successfully",
     }
+
 
 # --------------------------------------------------
 # CANCEL ORDER

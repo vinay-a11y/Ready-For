@@ -103,6 +103,15 @@ async function loadSavedAddresses() {
     savedAddresses = []
   }
 }
+function prefillUserPincode() {
+  const savedPincode = localStorage.getItem("userPincode")
+  const pincodeInput = document.getElementById("pincodeInput")
+
+  if (!savedPincode || !pincodeInput) return
+
+  pincodeInput.value = savedPincode
+  checkPincode() // reuse existing validation
+}
 
 async function fetchCartFromBackend() {
   try {
@@ -472,6 +481,8 @@ function renderAddressModal() {
       </div>
     ` : ''}
   `
+    setTimeout(prefillUserPincode, 0)
+
 }
 
 function renderSavedAddresses() {

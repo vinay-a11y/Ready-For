@@ -1145,7 +1145,7 @@ body {
   }
   .cart-item {
     flex-direction: row; /* 🔒 lock row */
-    align-items: center;
+  align-items: flex-start;
   }
 
   .item-name {
@@ -1160,21 +1160,28 @@ body {
   .item-original-price {
     font-size: 12px;
   }
-    .quantity-controls {
-    min-width: 60px;
-    padding: 3px;
+  .quantity-controls {
+    min-width: 72px;
+    padding: 2px 4px;
   }
 
   .quantity-btn {
-    width: 10px;
-    height: 5px;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
   }
 
   .quantity-display {
-    width: 20px;
-  }
+    width: 24px;
+    font-size: 14px;
+  
+}
+
 .item-actions {
     gap: 6px;
+  margin-top: 20px;
+  align-self: flex-start;
+
   }
 
 }

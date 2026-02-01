@@ -40,7 +40,7 @@ class OrdersManager {
 
   async fetchOrders() {
     try {
-      const response = await fetch(`/api/orders?user_id=${this.userDetails.id}`, {
+      const response = await fetch(`/api/orders?filter=${this.currentFilter}&search=${this.searchQuery}`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -116,55 +116,55 @@ class OrdersManager {
     return progress[status] || 0
   }
 
-  getFilteredOrders() {
-    let filtered = this.orders
+  // getFilteredOrders() {
+  //   let filtered = this.orders
 
-    // Apply status filter
-    if (this.currentFilter !== 'all') {
-      if (this.currentFilter === 'current') {
-        filtered = filtered.filter(order =>
-          !['delivered', 'completed', 'cancelled', 'rejected'].includes(order.order_status)
-        )
-      } else if (this.currentFilter === 'delivered') {
-        filtered = filtered.filter(order =>
-          ['delivered', 'completed'].includes(order.order_status)
-        )
-      } else if (this.currentFilter === 'cancelled') {
-        filtered = filtered.filter(order =>
-          ['cancelled', 'rejected'].includes(order.order_status)
-        )
-      }
-    }
+  //   // Apply status filter
+  //   if (this.currentFilter !== 'all') {
+  //     if (this.currentFilter === 'current') {
+  //       filtered = filtered.filter(order =>
+  //         !['delivered', 'completed', 'cancelled', 'rejected'].includes(order.order_status)
+  //       )
+  //     } else if (this.currentFilter === 'delivered') {
+  //       filtered = filtered.filter(order =>
+  //         ['delivered', 'completed'].includes(order.order_status)
+  //       )
+  //     } else if (this.currentFilter === 'cancelled') {
+  //       filtered = filtered.filter(order =>
+  //         ['cancelled', 'rejected'].includes(order.order_status)
+  //       )
+  //     }
+  //   }
 
-    // Apply search filter
-    if (this.searchQuery) {
-      const query = this.searchQuery.toLowerCase()
-      filtered = filtered.filter(order =>
-        order.razorpay_order_id.toLowerCase().includes(query) ||
-        order.items.some(item => item.name.toLowerCase().includes(query))
-      )
-    }
+  //   // Apply search filter
+  //   if (this.searchQuery) {
+  //     const query = this.searchQuery.toLowerCase()
+  //     filtered = filtered.filter(order =>
+  //       order.razorpay_order_id.toLowerCase().includes(query) ||
+  //       order.items.some(item => item.name.toLowerCase().includes(query))
+  //     )
+  //   }
 
-    return filtered
-  }
+  //   return filtered
+  // }
 
   renderOrders() {
-    const container = document.getElementById('ordersContainer')
-    const emptyState = document.getElementById('emptyState')
-    const filteredOrders = this.getFilteredOrders()
+  const container = document.getElementById('ordersContainer')
+  const emptyState = document.getElementById('emptyState')
+  const orders = this.orders
 
-    if (filteredOrders.length === 0) {
-      container.style.display = 'none'
-      emptyState.style.display = 'block'
-    } else {
-      container.style.display = 'flex'
-      emptyState.style.display = 'none'
+  if (orders.length === 0) {
+    container.style.display = 'none'
+    emptyState.style.display = 'block'
+  } else {
+    container.style.display = 'flex'
+    emptyState.style.display = 'none'
 
-      container.innerHTML = filteredOrders.map((order, index) =>
-        this.renderOrderCard(order, index)
-      ).join('')
-    }
+    container.innerHTML = orders
+      .map((order, index) => this.renderOrderCard(order, index))
+      .join('')
   }
+}
 
   renderOrderCard(order, index) {
     const formattedDate = this.formatDate(new Date(order.created_at))
@@ -360,14 +360,7 @@ let ordersManager
 // ============================================
 function filterOrders(filter) {
   ordersManager.currentFilter = filter
-
-  // Update active pill
-  document.querySelectorAll('.pill').forEach(pill => {
-    pill.classList.remove('active')
-  })
-  document.querySelector(`.pill[data-filter=\"${filter}\"]`).classList.add('active')
-
-  ordersManager.renderOrders()
+  ordersManager.fetchOrders().then(() => ordersManager.renderOrders())
 }
 
 // ============================================
@@ -386,17 +379,8 @@ function toggleSearch() {
 
 function handleSearch() {
   const searchInput = document.getElementById('searchInput')
-  const clearBtn = document.querySelector('.clear-search')
-
   ordersManager.searchQuery = searchInput.value.trim()
-
-  if (ordersManager.searchQuery) {
-    clearBtn.style.display = 'flex'
-  } else {
-    clearBtn.style.display = 'none'
-  }
-
-  ordersManager.renderOrders()
+  ordersManager.fetchOrders().then(() => ordersManager.renderOrders())
 }
 
 function clearSearch() {
